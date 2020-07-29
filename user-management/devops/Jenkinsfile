@@ -32,8 +32,8 @@ pipeline {
         readEnvironmentConfig()
       }
     }
-    stage("Setup Workspave")
-    {
+    stage("Setup Workspave") {
+      agent any
       steps {
         sh "rm -rf ./*"
         git changelog: false, poll: false, url: gitURL, branch: buildBranch
@@ -47,16 +47,20 @@ pipeline {
     stage("Test & Scan") {
       parallel {
         stage("Test") {
-          dir('user-management') {
+          steps{
             dir('user-management') {
-              sh "yarn run coverage"
+              dir('user-management') {
+                sh "yarn run coverage"
+              }
             }
           }
         }
-        stage("Test") {
-          dir('user-management') {
+        stage("scan") {
+          steps{
             dir('user-management') {
-              sh "yarn run sonar"
+              dir('user-management') {
+                sh "yarn run sonar"
+              }
             }
           }
         }
