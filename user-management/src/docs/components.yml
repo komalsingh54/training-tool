@@ -1,0 +1,178 @@
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+          format: email
+        givenName:
+          type: string
+        surName:
+          type: string
+        officeLocation:
+          type: string
+        oracleId:
+          type: string
+        jobTitle:
+          type: string
+        phoneNumber:
+          type: string
+        roles:
+          type: array
+          $ref: '#/components/schemas/Role'
+      example:
+        id: 5ebac534954b54139806c112
+        email: fake@example.com
+        givenName: fake name
+        surName: fakeSurnam
+        officeLocation: India
+        oracleId: 12345
+        jobTitle: SSL1
+        phoneNumber: 9876543212
+        roles: ['5f1c4b4cc9e3fa5fe0b685e8']
+
+    Role:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        isActive:
+          type: boolean
+        permissions:
+          type: array
+          $ref: '#/components/schemas/Permission'
+      example:
+        id: 5ebac534954b54139806c112
+        name: Admin Role
+        description: Admin Role With Permission
+        isActive: true
+        permissions: [
+          {
+            name: Training Configuration,
+            description: Training Configuration,
+            key: TRAINING_CONFIGURATION,
+            read: true,
+            write: true,
+            delete: true,
+            isActive: true,
+          }
+        ]
+
+    Permission:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        key:
+          type: string
+        description:
+          type: string
+        read:
+          type: boolean
+        write:
+          type: boolean
+        isActive:
+          type: boolean
+        delete:
+          type: boolean
+      example:
+        id: 5ebac534954b54139806c112
+        name: Training Configuration
+        key: TRAINING_CONFIGURATION
+        description: Training Configuration Rights
+        read: true
+        write: true
+        delete: true
+        isActive: true
+
+    Token:
+      type: object
+      properties:
+        token:
+          type: string
+        expires:
+          type: string
+          format: date-time
+      example:
+        token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1ZWJhYzUzNDk1NGI1NDEzOTgwNmMxMTIiLCJpYXQiOjE1ODkyOTg0ODQsImV4cCI6MTU4OTMwMDI4NH0.m1U63blB0MLej_WfB7yC2FTMnCziif9X8yzwDEfJXAg
+        expires: 2020-05-12T16:18:04.793Z
+
+    AuthTokens:
+      type: object
+      properties:
+        access:
+          $ref: '#/components/schemas/Token'
+        refresh:
+          $ref: '#/components/schemas/Token'
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: number
+        message:
+          type: string
+
+  responses:
+    DuplicatePermission:
+      description: Permission Already Created with same name
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+            example:
+              code: 400
+              message: Permission already Created
+
+    DuplicateEmail:
+      description: Email already taken
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 400
+            message: Email already taken
+
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 401
+            message: Please authenticate
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 403
+            message: Forbidden
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 404
+            message: Not found
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

@@ -1,0 +1,13 @@
+[
+  {
+    "_id" : { "$oid": "5f116827b6c51f4ecc77bb03" },
+    "read" : true,
+    "write" : true,
+    "delete" : true,
+    "isActive" : true,
+    "name" : "Training Configuration",
+    "description" : "Configuration for training",
+    "createdAt" : "2020-07-17T08:58:15.109Z",
+    "updatedAt" : "2020-07-18T09:47:06.398Z"
+  }
+]

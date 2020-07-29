@@ -1,0 +1,19 @@
+{
+  "name": "training-tool",
+  "version": "1.0.0",
+  "description": "1. User Management\r 2. Training Management\r 3. Batch Management\r 4. Nomination\r 5. API Composer (BFF)\r 6. Notification\r 7. Reporting (Common)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@pscode.lioncloud.net:xt-capability/training-tool.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "mongoose-data-seed": "^2.1.6"
+  }
+}

@@ -1,0 +1,66 @@
+
+buildBranch = env.BRANCH_NAME ?: 'master'
+gitURL = 'git@pscode.lioncloud.net:xt-capability/training-tool.git'
+
+pipeline {
+  agent any
+  options {
+    timestamps()
+    buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
+  }
+  parameters {
+    string(name: 'ARTEFACT_VERSION_NUMBER',
+      defaultValue: '',
+      description: "Which artefact version to deploy.")
+
+    choice(name: 'VERSION_BUMP_TYPE',
+      choices: ['Patch', 'Minor', 'Major'],
+      description: 'Which version type to bump the application to.')
+
+  }
+  environment {
+    PORT=3000
+    MONGODB_URL='mongodb://127.0.0.1:27017/training-tool'
+    JWT_SECRET='thisisasamplesecret'
+    JWT_ACCESS_EXPIRATION_MINUTES=30
+    JWT_REFRESH_EXPIRATION_DAYS=30
+  }
+  stages {
+    stage("Read Environment Configuration") {
+      agent any
+      steps {
+        readEnvironmentConfig()
+      }
+    }
+    stage("Build, Test & Publish") {
+      when { expression { "${params.ARTEFACT_VERSION_NUMBER}" == '' } }
+      steps {
+        sh "rm -rf ./*"
+        git changelog: false, credentialsId: 'ssh-tt', poll: false, url: gitURL, branch: buildBranch
+        dir('user-management') {
+          sh 'pwd'
+          dir('user-management') {
+
+            sh "yarn install"
+            // sh "yarn run test"
+            sh "yarn sonar"
+            wrap([$class: 'BuildUser']) {
+              script {
+                env.BUILD_USER = "${BUILD_USER}"
+                env.BUILD_USER_ID = "${BUILD_USER_ID}"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+
+
+
+void readEnvironmentConfig() {
+  echo "Reading Environment Configuration"
+  checkout scm
+}
