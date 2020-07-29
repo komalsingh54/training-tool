@@ -32,23 +32,31 @@ pipeline {
         readEnvironmentConfig()
       }
     }
-    stage("Build, Test & Publish") {
-      when { expression { "${params.ARTEFACT_VERSION_NUMBER}" == '' } }
+    stage("Setup Workspave")
+    {
       steps {
         sh "rm -rf ./*"
         git changelog: false, poll: false, url: gitURL, branch: buildBranch
-        dir('user-management') {
-          sh 'pwd'
+         dir('user-management') {
           dir('user-management') {
-
             sh "yarn install"
-            // sh "yarn run test"
-            sh "yarn sonar"
-            wrap([$class: 'BuildUser']) {
-              script {
-                env.BUILD_USER = "${BUILD_USER}"
-                env.BUILD_USER_ID = "${BUILD_USER_ID}"
-              }
+          }
+        }
+      }
+    }
+    stage("Test & Scan") {
+      parallel {
+        stage("Test") {
+          dir('user-management') {
+            dir('user-management') {
+              sh "yarn run coverage"
+            }
+          }
+        }
+        stage("Test") {
+          dir('user-management') {
+            dir('user-management') {
+              sh "yarn run sonar"
             }
           }
         }
