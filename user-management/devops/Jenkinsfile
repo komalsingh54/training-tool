@@ -37,8 +37,11 @@ pipeline {
       steps {
         sh "rm -rf ./*"
         git changelog: false, poll: false, url: gitURL, branch: buildBranch
-         dir('user-management') {
+        sh 'pwd'
+        dir('user-management') {
+          sh 'pwd'
           dir('user-management') {
+            sh 'pwd'
             sh "yarn install"
           }
         }
@@ -48,8 +51,11 @@ pipeline {
       parallel {
         stage("Test") {
           steps{
+            sh 'pwd'
             dir('user-management') {
+              sh 'pwd'
               dir('user-management') {
+                sh 'pwd'
                 sh "yarn run coverage"
               }
             }
