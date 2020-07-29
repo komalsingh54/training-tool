@@ -38,8 +38,6 @@ pipeline {
         sh "rm -rf ./*"
         git changelog: false, poll: false, url: gitURL, branch: buildBranch
         dir('user-management') {
-          sh 'pwd'
-          sh 'ls'
           sh "yarn install"
         }
       }
@@ -49,8 +47,6 @@ pipeline {
         stage("Test") {
           steps{
             dir('user-management') {
-              sh 'pwd'
-              sh 'ls'
               sh "yarn install"
               sh "yarn run coverage"
             }
@@ -59,8 +55,6 @@ pipeline {
         stage("scan") {
           steps{
             dir('user-management') {
-              sh 'pwd'
-              sh 'ls'
               sh "yarn install"
               sh "yarn run sonar"
             }
@@ -70,13 +64,13 @@ pipeline {
     }
     stage('Build docker image'){
       steps {
-        sh 'docker-compose build'
+        dir('user-management') {
+          sh 'docker-compose build'
+        }
       }
     }
   }
 }
-
-
 
 
 void readEnvironmentConfig() {
