@@ -26,6 +26,7 @@ pipeline {
     JWT_REFRESH_EXPIRATION_DAYS=30
     REGISTRY = "komalsingh54/training-tool"
     REGISTRY_CREDENTIAL = 'docker-hub'
+    DOCKER_HOST=127.0.0.1
   }
   stages {
     stage("Read Environment Configuration") {
@@ -67,6 +68,7 @@ pipeline {
     stage('Build docker image'){
       steps {
         dir('user-management') {
+          sh 'export DOCKER_HOST=127.0.0.1'
           sh 'docker-compose build'
           sh 'docker tag komalsingh54/user-management 2'
         }
