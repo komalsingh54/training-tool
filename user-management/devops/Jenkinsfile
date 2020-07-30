@@ -68,7 +68,7 @@ pipeline {
     stage('Build docker image'){
       steps {
         dir('user-management') {
-          dockerImage = docker.build REGISTRY
+          DOCKER_IMAGE = docker.build REGISTRY
         }
       }
     }
@@ -76,7 +76,7 @@ pipeline {
       steps {
         script {
           docker.withRegistry('', REGISTRY_CREDENTIAL ) {
-            dockerImage.push()
+            DOCKER_IMAGE.push()
           }
         }
       }
