@@ -24,6 +24,9 @@ pipeline {
     JWT_SECRET='thisisasamplesecret'
     JWT_ACCESS_EXPIRATION_MINUTES=30
     JWT_REFRESH_EXPIRATION_DAYS=30
+    REGISTRY = "komalsingh54/training-tool"
+    REGISTRY_CREDENTIAL = 'docker-hub'
+    DOCKER_IMAGE = ''
   }
   stages {
     stage("Read Environment Configuration") {
@@ -65,8 +68,22 @@ pipeline {
     stage('Build docker image'){
       steps {
         dir('user-management') {
-          sh 'sudo docker-compose build'
+          dockerImage = docker.build REGISTRY
         }
+      }
+    }
+    stage('Deploy our image') {
+      steps {
+        script {
+          docker.withRegistry('', REGISTRY_CREDENTIAL ) {
+            dockerImage.push()
+          }
+        }
+      }
+    }
+    stage('Cleaning up') {
+      steps {
+        sh "docker rmi $REGISTRY"
       }
     }
   }
