@@ -1,6 +1,7 @@
 
 buildBranch = env.BRANCH_NAME ?: 'master'
 gitURL = 'https://github.com/komalsingh54/training-tool.git'
+DOCKER_IMAGE = ''
 
 pipeline {
   agent any
@@ -26,7 +27,6 @@ pipeline {
     JWT_REFRESH_EXPIRATION_DAYS=30
     REGISTRY = "komalsingh54/training-tool"
     REGISTRY_CREDENTIAL = 'docker-hub'
-    DOCKER_IMAGE = ''
   }
   stages {
     stage("Read Environment Configuration") {
@@ -75,7 +75,7 @@ pipeline {
     stage('Deploy our image') {
       steps {
         script {
-          docker.withRegistry('', REGISTRY_CREDENTIAL ) {
+          docker.withRegistry('', REGISTRY_CREDENTIAL) {
             DOCKER_IMAGE.push()
           }
         }
