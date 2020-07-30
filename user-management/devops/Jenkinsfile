@@ -1,10 +1,9 @@
 
 buildBranch = env.BRANCH_NAME ?: 'master'
 gitURL = 'https://github.com/komalsingh54/training-tool.git'
-DOCKER_IMAGE = ''
 
 pipeline {
-  agent { label 'docker' }
+  agent any
   options {
     timestamps()
     buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
@@ -69,21 +68,21 @@ pipeline {
       steps {
         dir('user-management') {
           sh 'docker-compose build'
+          sh 'docker tag komalsingh54/user-management 2'
         }
       }
     }
     stage('Deploy our image') {
       steps {
         script {
-          withDockerRegistry([ credentialsId: REGISTRY_CREDENTIAL, url: "" ]) {
-            sh "docker push $REGISTRY"
-          }
+          sh 'docker login --username=komalsingh54 --password=@singhisking'
+          sh 'sudo docker push komalsingh54/user-management:2'
         }
       }
     }
     stage('Cleaning up') {
       steps {
-        sh "docker rmi $REGISTRY"
+        sh "docker rmi komalsingh54/user-management"
       }
     }
   }
