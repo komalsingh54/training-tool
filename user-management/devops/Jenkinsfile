@@ -4,7 +4,7 @@ gitURL = 'https://github.com/komalsingh54/training-tool.git'
 DOCKER_IMAGE = ''
 
 pipeline {
-  agent any
+  agent { label 'docker' }
   options {
     timestamps()
     buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
@@ -68,15 +68,15 @@ pipeline {
     stage('Build docker image'){
       steps {
         dir('user-management') {
-          DOCKER_IMAGE = docker.build REGISTRY
+          sh 'docker-compose build'
         }
       }
     }
     stage('Deploy our image') {
       steps {
         script {
-          docker.withRegistry('', REGISTRY_CREDENTIAL) {
-            DOCKER_IMAGE.push()
+          withDockerRegistry([ credentialsId: REGISTRY_CREDENTIAL, url: "" ]) {
+            sh "docker push $REGISTRY"
           }
         }
       }
