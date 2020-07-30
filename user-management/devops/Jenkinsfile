@@ -39,9 +39,9 @@ pipeline {
       steps {
         sh "rm -rf ./*"
         git changelog: false, poll: false, url: gitURL, branch: buildBranch
-        dir('user-management') {
+        /* dir('user-management') {
           sh "yarn install"
-        }
+        } */
       }
     }
     stage("Test & Scan") {
@@ -67,6 +67,7 @@ pipeline {
     stage('Build docker image'){
       steps {
         dir('user-management') {
+          sh 'pwd'
           sh 'docker-compose build'
           sh 'docker tag komalsingh54/user-management 2'
         }
@@ -75,8 +76,11 @@ pipeline {
     stage('Deploy our image') {
       steps {
         script {
-          sh 'docker login --username=komalsingh54 --password=@singhisking'
-          sh 'sudo docker push komalsingh54/user-management:2'
+          dir('user-management') {
+            sh 'pwd'
+            sh 'docker login --username=komalsingh54 --password=@singhisking'
+            sh 'sudo docker push komalsingh54/user-management:2'
+          }
         }
       }
     }
