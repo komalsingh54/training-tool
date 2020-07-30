@@ -68,8 +68,8 @@ pipeline {
       steps {
         dir('user-management') {
           sh 'pwd'
-          sh 'docker-compose build'
-          sh 'docker tag komalsingh54/user-management 2'
+          sh 'sudo docker-compose build'
+          sh 'sudo docker tag komalsingh54/user-management 2'
         }
       }
     }
@@ -78,7 +78,7 @@ pipeline {
         script {
           dir('user-management') {
             sh 'pwd'
-            sh 'docker login --username=komalsingh54 --password=@singhisking'
+            sh 'sudo docker login --username=komalsingh54 --password=@singhisking'
             sh 'sudo docker push komalsingh54/user-management:2'
           }
         }
