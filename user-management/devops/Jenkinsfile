@@ -23,7 +23,7 @@ pipeline {
       steps{
         dir('user-management') {
           sh  "docker tag komalsingh54/user-management komalsingh54/user-management:$BUILD_NUMBER"
-          sh  "docker push komalsingh54/user-management:$BUILD_NUMBER"
+          sh  "docker push komalsingh54/training-tool:$BUILD_NUMBER"
         }
       }
     }
