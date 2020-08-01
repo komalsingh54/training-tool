@@ -22,10 +22,8 @@ pipeline {
     stage('push image') {
       steps{
         dir('user-management') {
-          script {
-            docker tag "komalsingh54/user-management" "komalsingh54/user-management:$BUILD_NUMBER"
-            docker push "komalsingh54/user-management:$BUILD_NUMBER"
-          }
+          sh  "docker tag komalsingh54/user-management komalsingh54/user-management:$BUILD_NUMBER"
+          sh  "docker push komalsingh54/user-management:$BUILD_NUMBER"
         }
       }
     }
