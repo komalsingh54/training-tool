@@ -15,7 +15,7 @@ pipeline {
       steps{
         dir('user-management') {
           sh 'yarn install'
-          sh 'yarn docker:prod'
+          sh 'yarn docker:build'
           /* script {
             docker-compose build
             docker tag $registry:$BUILD_NUMBER
