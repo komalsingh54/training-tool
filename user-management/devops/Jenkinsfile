@@ -31,8 +31,8 @@ pipeline {
       }
     }
     stage('Cleaning up') {
-      dir('user-management') {
-        steps {
+      steps {
+        dir('user-management') {
           sh "docker rmi $registry:$BUILD_NUMBER"
         }
       }
