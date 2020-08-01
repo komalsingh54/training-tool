@@ -6,6 +6,14 @@ services:
     image: komalsingh54/user-management
     environment:
       - MONGODB_URL=mongodb://mongodb:27017/training-tool
+      - JWT_SECRET=thisisasamplesecret
+      - JWT_ACCESS_EXPIRATION_MINUTES=30
+      - JWT_REFRESH_EXPIRATION_DAYS=30
+      - SMTP_HOST=email-server
+      - SMTP_PORT=587
+      - SMTP_USERNAME=email-server-username
+      - SMTP_PASSWORD=email-server-password
+      - EMAIL_FROM=support@yourapp.com
     ports:
       - '3000:3000'
     depends_on:

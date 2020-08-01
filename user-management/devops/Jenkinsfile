@@ -1,8 +1,8 @@
 pipeline {
   environment {
-  registry = "komalsingh54/training-tool"
-  registryCredential = 'docker-hub'
-  dockerImage = ''
+    registry = "komalsingh54/training-tool"
+    registryCredential = 'docker-hub'
+    dockerImage = ''
   }
   agent any
   stages {
@@ -15,10 +15,11 @@ pipeline {
       steps{
         dir('user-management') {
           sh 'yarn install'
-          script {
+          sh 'yarn docker:prod'
+          /* script {
             docker-compose build
             docker tag $registry:$BUILD_NUMBER
-          }
+          } */
         }
       }
     }
@@ -35,7 +36,7 @@ pipeline {
     stage('Cleaning up') {
       steps {
         dir('user-management') {
-          sh "docker rmi $registry:$BUILD_NUMBER"
+          // sh "docker rmi $registry:$BUILD_NUMBER"
         }
       }
     }
