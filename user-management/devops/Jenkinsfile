@@ -1,99 +1,36 @@
-
-buildBranch = env.BRANCH_NAME ?: 'master'
-gitURL = 'https://github.com/komalsingh54/training-tool.git'
-
 pipeline {
-  agent any
-  options {
-    timestamps()
-    buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
-  }
-  parameters {
-    string(name: 'ARTEFACT_VERSION_NUMBER',
-      defaultValue: '',
-      description: "Which artefact version to deploy.")
-
-    choice(name: 'VERSION_BUMP_TYPE',
-      choices: ['Patch', 'Minor', 'Major'],
-      description: 'Which version type to bump the application to.')
-
-  }
   environment {
-    PORT=3000
-    MONGODB_URL='mongodb://127.0.0.1:27017/training-tool'
-    JWT_SECRET='thisisasamplesecret'
-    JWT_ACCESS_EXPIRATION_MINUTES=30
-    JWT_REFRESH_EXPIRATION_DAYS=30
-    REGISTRY = "komalsingh54/training-tool"
-    REGISTRY_CREDENTIAL = 'docker-hub'
-    DOCKER_HOST='127.0.0.1:2375'
+  registry = "komalsingh54/training-tool"
+  registryCredential = 'docker-hub'
+  dockerImage = ''
   }
+  agent any
   stages {
-    stage("Read Environment Configuration") {
-      agent any
+    stage('Cloning our Git') {
       steps {
-        readEnvironmentConfig()
+        git 'https://github.com/komalsingh54/training-tool.git'
       }
     }
-    stage("Setup Workspave") {
-      agent any
-      steps {
-        sh "rm -rf ./*"
-        git changelog: false, poll: false, url: gitURL, branch: buildBranch
-        /* dir('user-management') {
-          sh "yarn install"
-        } */
-      }
-    }
-    stage("Test & Scan") {
-      parallel {
-        stage("Test") {
-          steps{
-            dir('user-management') {
-              sh "yarn install"
-              sh "yarn run coverage"
-            }
-          }
-        }
-        stage("scan") {
-          steps{
-            dir('user-management') {
-              sh "yarn install"
-              sh "yarn run sonar"
-            }
-          }
-        }
-      }
-    }
-    stage('Build docker image'){
-      steps {
-        dir('user-management') {
-          sh 'export DOCKER_HOST=127.0.0.1:2375'
-          sh 'docker-compose build'
-          sh 'docker tag komalsingh54/user-management 2'
+    stage('Building our image') {
+      steps{
+        script {
+          dockerImage = docker.build registry + ":$BUILD_NUMBER"
         }
       }
     }
     stage('Deploy our image') {
-      steps {
+      steps{
         script {
-          dir('user-management') {
-            sh 'docker login --username=komalsingh54 --password=@singhisking'
-            sh 'docker push komalsingh54/user-management:2'
-          }
+          docker.withRegistry( '', registryCredential) {
+          dockerImage.push()
+        }
+        }
+      }
+      stage('Cleaning up') {
+        steps {
+          sh "docker rmi $registry:$BUILD_NUMBER"
         }
       }
     }
-    stage('Cleaning up') {
-      steps {
-        sh "docker rmi komalsingh54/user-management"
-      }
-    }
   }
-}
-
-
-void readEnvironmentConfig() {
-  echo "Reading Environment Configuration"
-  checkout scm
 }
