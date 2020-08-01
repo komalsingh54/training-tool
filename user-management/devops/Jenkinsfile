@@ -16,29 +16,25 @@ pipeline {
         dir('user-management') {
           sh 'yarn install'
           sh 'yarn docker:build'
-          /* script {
-            docker-compose build
-            docker tag $registry:$BUILD_NUMBER
-          } */
         }
       }
     }
-    /* stage('Deploy our image') {
+    stage('push image') {
       steps{
         dir('user-management') {
           script {
-            // docker.withRegistry( '', registryCredential) {
-            // dockerImage.push()}
+            docker tag "komalsingh54/user-management" "komalsingh54/user-management:$BUILD_NUMBER"
+            docker push "komalsingh54/user-management:$BUILD_NUMBER"
           }
         }
       }
-    } */
-    /* stage('Cleaning up') {
+    }
+    stage('Cleaning up') {
       steps {
         dir('user-management') {
-          // sh "docker rmi $registry:$BUILD_NUMBER"
+          sh "docker rmi komalsingh54/user-management:$BUILD_NUMBER"
         }
       }
-    } */
+    }
   }
 }

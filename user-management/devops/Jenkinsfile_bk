@@ -79,7 +79,7 @@ pipeline {
         script {
           dir('user-management') {
             sh 'docker login --username=komalsingh54 --password=@singhisking'
-            sh 'docker push komalsingh54/user-management:2'
+            sh "docker push komalsingh54/user-management:$BUILD_NUMBER"
           }
         }
       }
