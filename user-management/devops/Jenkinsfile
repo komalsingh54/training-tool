@@ -23,7 +23,7 @@ pipeline {
         }
       }
     }
-    stage('Deploy our image') {
+    /* stage('Deploy our image') {
       steps{
         dir('user-management') {
           script {
@@ -32,13 +32,13 @@ pipeline {
           }
         }
       }
-    }
-    stage('Cleaning up') {
+    } */
+    /* stage('Cleaning up') {
       steps {
         dir('user-management') {
           // sh "docker rmi $registry:$BUILD_NUMBER"
         }
       }
-    }
+    } */
   }
 }
