@@ -83,10 +83,8 @@ pipeline {
       }
     }
     stage('Deploy our image') {
+      when { expression { "${params.DEPLOY}" == true } }
       steps {
-        when {
-            expression { params.DEPLOY == true }
-        }
         script {
           dir('user-management') {
             sh 'docker login --username=komalsingh54 --password=@singhisking'
