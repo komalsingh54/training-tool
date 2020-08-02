@@ -79,6 +79,7 @@ pipeline {
           sh "docker tag $registry $registry:$BUILD_NUMBER"
           sh "docker login --username $USER_NAME --password $PASSWORD"
           sh "docker push $registry:$BUILD_NUMBER"
+          sh "echo ${params.DEPLOY}"
         }
       }
     }
