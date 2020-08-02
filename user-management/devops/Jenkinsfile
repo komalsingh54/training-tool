@@ -28,6 +28,7 @@ pipeline {
       choices: ['Patch', 'Minor', 'Major'],
       description: 'Which version type to bump the application to.')
 
+    booleanParam(defaultValue: true, name: 'DEPLOY', description: 'Do you want to deploy?'),
   }
 
   stages {
@@ -81,8 +82,11 @@ pipeline {
         }
       }
     }
-    /* stage('Deploy our image') {
+    stage('Deploy our image') {
       steps {
+        when {
+            expression { params.DEPLOY == true }
+        }
         script {
           dir('user-management') {
             sh 'docker login --username=komalsingh54 --password=@singhisking'
@@ -90,7 +94,7 @@ pipeline {
           }
         }
       }
-    } */
+    }
     stage('Cleaning up') {
       steps {
         sh "docker rmi $registry:$BUILD_NUMBER"
@@ -109,10 +113,6 @@ void readEnvironmentConfig() {
   ]) {
     USER_NAME = username
     PASSWORD = password
-    print 'username=' + username + '  ' + USER_NAME  +'password=' + password + ' ' + PASSWORD
-
-    print 'username.collect { it }=' + username.collect { it }
-    print 'password.collect { it }=' + password.collect { it }
   }
   checkout scm
 }
