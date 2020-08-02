@@ -28,7 +28,7 @@ pipeline {
       choices: ['Patch', 'Minor', 'Major'],
       description: 'Which version type to bump the application to.')
 
-    booleanParam(defaultValue: true, name: 'DEPLOY', description: 'Do you want to deploy?'),
+    booleanParam(defaultValue: true, name: 'DEPLOY', description: 'Do you want to deploy?')
   }
 
   stages {
