@@ -1,18 +1,71 @@
+
+buildBranch = env.BRANCH_NAME ?: 'master'
+USER_NAME = ''
+PASSWORD = ''
+gitURL = 'https://github.com/komalsingh54/training-tool.git'
+
 pipeline {
-  environment {
-    registry = "komalsingh54/training-tool"
-    registryCredential = 'docker-hub'
-    dockerImage = ''
-  }
   agent any
+  environment {
+    PORT=3000
+    MONGODB_URL='mongodb://127.0.0.1:27017/training-tool'
+    JWT_SECRET='thisisasamplesecret'
+    JWT_ACCESS_EXPIRATION_MINUTES=30
+    JWT_REFRESH_EXPIRATION_DAYS=30
+    registry = "komalsingh54/user-management"
+    registryCredential = 'docker-hub'
+  }
+  options {
+    timestamps()
+    buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
+  }
+  parameters {
+    string(name: 'ARTEFACT_VERSION_NUMBER',
+      defaultValue: '',
+      description: "Which artefact version to deploy.")
+
+    choice(name: 'VERSION_BUMP_TYPE',
+      choices: ['Patch', 'Minor', 'Major'],
+      description: 'Which version type to bump the application to.')
+
+  }
+
   stages {
-    stage('Cloning our Git') {
+    stage("Read Environment Configuration") {
+      agent any
       steps {
-        git 'https://github.com/komalsingh54/training-tool.git'
+        readEnvironmentConfig()
       }
     }
-    stage('Building our image') {
-      steps{
+    stage("Setup Workspace") {
+      agent any
+      steps {
+        sh "rm -rf ./*"
+        git changelog: false, poll: false, url: gitURL, branch: buildBranch
+      }
+    }
+    stage("Test & Scan") {
+      parallel {
+        stage("Test") {
+          steps{
+            dir('user-management') {
+              sh "yarn install"
+              sh "yarn run coverage"
+            }
+          }
+        }
+        stage("scan") {
+          steps{
+            dir('user-management') {
+              sh "yarn install"
+              sh "yarn run sonar"
+            }
+          }
+        }
+      }
+    }
+    stage('Build docker image'){
+      steps {
         dir('user-management') {
           sh 'yarn install'
           sh 'yarn docker:build'
@@ -22,18 +75,44 @@ pipeline {
     stage('push image') {
       steps{
         dir('user-management') {
-          sh  "docker tag komalsingh54/user-management komalsingh54/user-management:$BUILD_NUMBER"
-          sh "docker login --username komalsingh54 --password @singhisking"
-          sh  "docker push komalsingh54/user-management:$BUILD_NUMBER"
+          sh "docker tag $registry $registry:$BUILD_NUMBER"
+          sh "docker login --username $USER_NAME --password $PASSWORD"
+          sh "docker push $registry:$BUILD_NUMBER"
         }
       }
     }
+    /* stage('Deploy our image') {
+      steps {
+        script {
+          dir('user-management') {
+            sh 'docker login --username=komalsingh54 --password=@singhisking'
+            sh "docker push komalsingh54/user-management:$BUILD_NUMBER"
+          }
+        }
+      }
+    } */
     stage('Cleaning up') {
       steps {
-        dir('user-management') {
-          sh "docker rmi komalsingh54/user-management:$BUILD_NUMBER"
-        }
+        sh "docker rmi $registry:$BUILD_NUMBER"
       }
     }
   }
+}
+
+
+void readEnvironmentConfig() {
+  echo "Reading Environment Configuration"
+  withCredentials([
+    usernamePassword(credentialsId: registryCredential,
+      usernameVariable: 'username',
+      passwordVariable: 'password')
+  ]) {
+    USER_NAME = username
+    PASSWORD = password
+    print 'username=' + username + '  ' + USER_NAME  +'password=' + password + ' ' + PASSWORD
+
+    print 'username.collect { it }=' + username.collect { it }
+    print 'password.collect { it }=' + password.collect { it }
+  }
+  checkout scm
 }
