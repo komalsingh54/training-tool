@@ -32,17 +32,19 @@ pipeline {
   }
 
   stages {
-    stage("Read Environment Configuration") {
-      agent any
-      steps {
-        readEnvironmentConfig()
-      }
-    }
     stage("Setup Workspace") {
       agent any
       steps {
         sh "rm -rf ./*"
         git changelog: false, poll: false, url: gitURL, branch: buildBranch
+        withCredentials([
+          usernamePassword(credentialsId: registryCredential,
+            usernameVariable: 'username',
+            passwordVariable: 'password')
+        ]) {
+          USER_NAME = username
+          PASSWORD = password
+        }
       }
     }
     stage("Test & Scan") {
@@ -79,7 +81,6 @@ pipeline {
           sh "docker tag $registry $registry:$BUILD_NUMBER"
           sh "docker login --username $USER_NAME --password $PASSWORD"
           sh "docker push $registry:$BUILD_NUMBER"
-          sh "echo ${params.DEPLOY}"
         }
       }
     }
@@ -101,18 +102,4 @@ pipeline {
       }
     }
   }
-}
-
-
-void readEnvironmentConfig() {
-  echo "Reading Environment Configuration"
-  withCredentials([
-    usernamePassword(credentialsId: registryCredential,
-      usernameVariable: 'username',
-      passwordVariable: 'password')
-  ]) {
-    USER_NAME = username
-    PASSWORD = password
-  }
-  checkout scm
 }
