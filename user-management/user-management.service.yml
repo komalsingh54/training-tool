@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+ name: user-management
+ labels:
+   name: user-management
+spec:
+ type: LoadBalancer
+ ports:
+   - port: 80 #The application is exposed to the external world on port 80
+     targetPort: http-server
+     protocol: TCP
+ selector:
+name: user-management
+

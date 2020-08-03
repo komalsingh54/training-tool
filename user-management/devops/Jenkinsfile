@@ -80,9 +80,11 @@ pipeline {
       steps {
         script {
           dir('user-management') {
-            sh 'echo hi'
-            // sh 'docker login --username=komalsingh54 --password=@singhisking'
-            // sh "docker push komalsingh54/user-management:$BUILD_NUMBER"
+            sh "gcloud builds submit --tag gcr.io/burner-komsingh/user-management:$BUILD_NUMBER ."
+            sh 'kubectl create -f db-deployment.yml'
+            sh 'kubectl create -f db-service.yml'
+            sh 'kubectl create -f user-management-deployment.yml'
+            sh 'kubectl create -f user-management.service.yml'
           }
         }
       }

@@ -1,0 +1,19 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: user-management
+  labels:
+    name: user-management
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        name: user-management
+    spec:
+      containers:
+      - image: gcr.io/burner-komsingh/user-management
+        name: user-management
+        ports:
+        - name: http-server
+  containerPort: 3000
