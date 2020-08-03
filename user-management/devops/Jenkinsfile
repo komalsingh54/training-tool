@@ -32,19 +32,10 @@ pipeline {
   }
 
   stages {
-    stage("Setup Workspace") {
+    stage("Read Environment Configuration & Setup") {
       agent any
       steps {
-        sh "rm -rf ./*"
-        git changelog: false, poll: false, url: gitURL, branch: buildBranch
-        withCredentials([
-          usernamePassword(credentialsId: registryCredential,
-            usernameVariable: 'username',
-            passwordVariable: 'password')
-        ]) {
-          USER_NAME = username
-          PASSWORD = password
-        }
+        readEnvironmentConfig()
       }
     }
     stage("Test & Scan") {
@@ -102,4 +93,20 @@ pipeline {
       }
     }
   }
+}
+
+
+void readEnvironmentConfig() {
+  echo "Reading Environment Configuration"
+  withCredentials([
+    usernamePassword(credentialsId: registryCredential,
+      usernameVariable: 'username',
+      passwordVariable: 'password')
+  ]) {
+    USER_NAME = username
+    PASSWORD = password
+  }
+  checkout scm
+  sh "rm -rf ./*"
+  git changelog: false, poll: false, url: gitURL, branch: buildBranch
 }
